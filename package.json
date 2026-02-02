@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +14,14 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
     "express": "^5.2.1",
     "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0"
   }
 }
