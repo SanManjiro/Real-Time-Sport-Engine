@@ -9,7 +9,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Real-Time Sport Engine API!' });
 });
-app.use(MatchesRouter);
+app.use('/matches',MatchesRouter);
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
