@@ -20,10 +20,10 @@ MatchesRouter.get("/", async (req, res) => {
         .orderBy(desc(matches.createdAt))
         .limit(limit);
     res.status(200).json({data});
-  }catch (e) {
-    res.status(500).json({ error: "Failed fetching match", details: e.message });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Failed fetching match" });
   }
-  const match=db.select().from(matches).limit(limit);
 });
 
 MatchesRouter.post("/", async (req, res) => {
@@ -41,11 +41,12 @@ MatchesRouter.post("/", async (req, res) => {
       endTime: new Date(endTime),
       homeScore: homeScore ?? 0,
       awayScore: awayScore ?? 0,
-      status: getMatchStatus(startTime, endTime)
+      status: getMatchStatus(startTime, endTime) ?? "scheduled"
     }).returning();
 
     res.status(201).json({data:event});
   } catch (e) {
-    res.status(500).json({ error: "Database error", details: e.message });
+    console.error(e);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
