@@ -5,7 +5,7 @@ import {attachWebSocketServer} from "./ws/server.js";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
-const host =process.env.HOST;
+const host =process.env.HOST || "0.0.0.0";
 
 const server=http.createServer(app)
 
@@ -19,7 +19,7 @@ const {broadcastMatchCreated}=attachWebSocketServer(server)
 
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
 server.listen(port,host, () => {
-  const baseUrl=host === '0.0.0.0'?`http://localhost:${port}`:`http://${host}/${port}`;
+  const baseUrl=host === '0.0.0.0'?`http://localhost:${port}`:`http://${host}:${port}`;
   console.log(`Server is running at ${baseUrl}`);
   console.log(`Server websocket is running on ${baseUrl.replace('http','ws')}/ws`)
 });
