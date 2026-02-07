@@ -5,6 +5,7 @@ import { db } from "../db/db.js";
 import { matches } from "../db/schema.js";
 import {desc} from "drizzle-orm";
 
+
 export const MatchesRouter = Router();
 const MAX_LIMIT=100;
 MatchesRouter.get("/", async (req, res) => {
@@ -43,7 +44,9 @@ MatchesRouter.post("/", async (req, res) => {
       awayScore: awayScore ?? 0,
       status: getMatchStatus(startTime, endTime) ?? "scheduled"
     }).returning();
-
+  if(res.app.locals.broadcastMatchCreated){
+      res.app.locals.broadcastMatchCreated(event);
+  }
     res.status(201).json({data:event});
   } catch (e) {
     console.error(e);
