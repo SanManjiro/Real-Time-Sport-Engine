@@ -2,6 +2,7 @@ import express from 'express';
 import {MatchesRouter} from "./Routes/matches.js";
 import * as http from "node:http";
 import {attachWebSocketServer} from "./ws/server.js";
+import {securityMiddleware} from "./arcjet.js";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -12,8 +13,11 @@ const server=http.createServer(app)
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the Real-Time Sport Engine API!' });
+  // res.json({ message: 'Welcome to the Real-Time Sport Engine API!' });
+  res.send("Hello from EXpress server")
 });
+app.use(securityMiddleware())
+
 app.use('/matches',MatchesRouter);
 const {broadcastMatchCreated}=attachWebSocketServer(server)
 
