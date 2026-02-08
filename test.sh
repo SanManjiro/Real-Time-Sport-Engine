@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "Testing Rate Limit (429)..."
-echo "Sending 60 requests in 2 seconds (limit is 50)..."
+echo "Sending 70 requests in 2 seconds (limit is 50)..."
 echo ""
 
 for i in {1..70}; do

@@ -11,12 +11,12 @@ const host =process.env.HOST || "0.0.0.0";
 const server=http.createServer(app)
 
 app.use(express.json());
-
+app.use(securityMiddleware())
 app.get('/', (req, res) => {
   // res.json({ message: 'Welcome to the Real-Time Sport Engine API!' });
   res.send("Hello from EXpress server")
 });
-app.use(securityMiddleware())
+
 
 app.use('/matches',MatchesRouter);
 const {broadcastMatchCreated}=attachWebSocketServer(server)

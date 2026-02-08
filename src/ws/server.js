@@ -30,6 +30,7 @@ export function attachWebSocketServer(server){
                     const code =decision.reason.isRateLimit()? 1013 : 1008;
                     const reason=decision.reason.isRateLimit()?"Rate limit exceeded": "Access denied"
                     socket.close(code,reason);
+                    return;
                 }
             }catch (e) {
                 console.log('Ws connection error', e);
@@ -46,6 +47,19 @@ export function attachWebSocketServer(server){
         sendJson(socket, {type:'welcome'})
         socket.on('error', console.error)
     })
+
+    const interval = setInterval(() => {
+        wss.clients.forEach((socket) => {
+            if (socket.isActive === false) return socket.terminate();
+            socket.isActive = false;
+            socket.ping();
+        });
+    }, 30000);
+
+    wss.on('close', () => {
+        clearInterval(interval);
+    });
+
     function broadcastMatchCreated(match){
         broadcast(wss, {type: "match_created", data:match})
     }
