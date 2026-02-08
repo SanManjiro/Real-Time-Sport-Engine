@@ -17,28 +17,43 @@ export default function broadcast(wss, payload) {
 //Here we connect websocket server to http server on the same port this will make easy deployment also only upgrades requests are listen by the websocket server the rest are listeen by http server
 export function attachWebSocketServer(server){
     const wss = new WebSocketServer({
-        server,
+        noServer: true,
         path: '/ws',
         //maxPayload allows to limit the payload size
         maxPayload:1024*1024
     })
-    wss.on('connection', async (socket, req)=>{
-        if(wsArcjet){
-            try {
-                const decision=await wsArcjet.protect(req);
-                if(decision.isDenied()){
-                    const code =decision.reason.isRateLimit()? 1013 : 1008;
-                    const reason=decision.reason.isRateLimit()?"Rate limit exceeded": "Access denied"
-                    socket.close(code,reason);
+
+    server.on('upgrade', async (req, socket, head) => {
+        const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+
+        if (pathname === '/ws') {
+            if (wsArcjet) {
+                try {
+                    const decision = await wsArcjet.protect(req);
+                    if (decision.isDenied()) {
+                        const statusCode = decision.reason.isRateLimit() ? 429 : 403;
+                        const statusMessage = decision.reason.isRateLimit() ? "Too Many Requests" : "Forbidden";
+                        socket.write(`HTTP/1.1 ${statusCode} ${statusMessage}\r\nConnection: close\r\n\r\n`);
+                        socket.destroy();
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Ws security error during upgrade', e);
+                    socket.write('HTTP/1.1 500 Internal Server Error\r\nConnection: close\r\n\r\n');
+                    socket.destroy();
                     return;
                 }
-            }catch (e) {
-                console.log('Ws connection error', e);
-                socket.close(1011, 'Server security error')
-                return;
-
             }
+
+            wss.handleUpgrade(req, socket, head, (ws) => {
+                wss.emit('connection', ws, req);
+            });
+        } else {
+            socket.destroy();
         }
+    });
+
+    wss.on('connection', (socket, req)=>{
         socket.isActive= true;
         socket.on('pong',()=>{
             socket.isActive= true
